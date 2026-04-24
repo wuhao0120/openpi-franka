@@ -1,0 +1,37 @@
+model:
+  # Must exist in src/openpi/training/config.py.
+  name: pi05_arx_r5_delta_ee
+  # Default local training output path:
+  #   ./checkpoints/<config_name>/<exp_name>
+  # Replace <exp_name> with your real training run name when a checkpoint is ready.
+  # In mock mode, a missing checkpoint path falls back to the built-in dummy policy.
+  checkpoint_dir: ./checkpoints/pi05_arx_r5_delta_ee/clean_up_table_20260422_v15
+  # Optional: set this to ARX norm stats when evaluating pi05_base before ARX fine-tuning.
+  # norm_stats_dir: ./assets/pi05_arx_r5_delta_ee/arx_r5_dual_delta_ee
+
+robot:
+  # Replace with the robot-control computer IP when inference and control run on separate machines.
+  ip: 10.10.10.2
+  port: 4242
+  control_mode: normal
+  # Dataset collection was recorded at 15 Hz.
+  # Keep the first real-robot validation conservative, then raise back to 15 if motion is correct.
+  action_fps: 10
+  # The model predicts a chunk, but the first hardware validation should execute one step at a time.
+  action_horizon: 1
+
+image:
+  # Policy input resolution. The three RGB streams are resized with padding to this size.
+  height: 224
+  width: 224
+
+run:
+  task_description: clean up the table with both arms
+  # Stop automatically after ~30s at 10 Hz. Use 0 to run until interrupted.
+  max_steps: 300
+  mode: mock  # mock: local dummy smoke test | silent: real RPC act without execution | execute: real robot control
+
+# Export the three local camera serial numbers on the inference computer before mode=silent/execute:
+#   export OPENPI_ARX_HEAD_CAMERA=218622271302
+#   export OPENPI_ARX_LEFT_WRIST_CAMERA=218622278394
+#   export OPENPI_ARX_RIGHT_WRIST_CAMERA=218622274803
